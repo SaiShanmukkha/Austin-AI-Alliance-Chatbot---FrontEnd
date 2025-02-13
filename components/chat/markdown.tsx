@@ -6,7 +6,7 @@ import { CodeBlock } from './code-block';
 
 const components: Partial<Components> = {
   code: ({ node, className, children, ...props }) => {
-    const isInline = !className; // ✅ Inline if no className
+    const isInline = !className;
     return <CodeBlock node={node} className={className || ''} inline={isInline} {...props}>{children}</CodeBlock>;
   },
 

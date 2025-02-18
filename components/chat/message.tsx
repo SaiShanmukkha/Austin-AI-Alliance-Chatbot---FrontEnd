@@ -121,7 +121,7 @@ const PurePreviewMessage = ({
                     const { result } = toolInvocation;
 
                     return (
-                      <pre>{JSON.stringify(result, null, 2)}</pre>
+                      <pre key={toolCallId}>{JSON.stringify(result, null, 2)}</pre>
                     );
                   }
                   return (

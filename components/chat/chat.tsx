@@ -50,7 +50,7 @@ export function Chat({
       mutate('/api/history');
     },
     onError: (error) => {
-      toast.error('An error occured, please try again!');
+      toast.error('An error occurred, please try again!');
     },
   });
 
@@ -61,6 +61,50 @@ export function Chat({
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isBlockVisible = false;
+
+  // Modify handleSubmit to fetch full result from the server
+  const customHandleSubmit = async () => {
+    // Show the user's input as a message
+    const userMessage: Message = {
+      id: generateUUID(),
+      content: input,
+      role: 'user',
+      createdAt: new Date(),
+    };
+    
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput(''); // Clear input field
+
+    try {
+      // Send the user message and get the result from the API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          messages: [...messages, userMessage], // Send the current messages plus the new user message
+          selectedChatModel,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from the server');
+      }
+
+      const result = await response.json();
+      const sanitizedResponseMessages = result.messages; // Assuming result.messages is sanitized
+
+      // Add the response from the AI
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        ...sanitizedResponseMessages, // Add the AI's response to the messages
+      ]);
+    } catch (error) {
+      toast.error('An error occurred while sending the message.');
+    }
+  };
 
   return (
     <>
@@ -89,7 +133,7 @@ export function Chat({
               chatId={id}
               input={input}
               setInput={setInput}
-              handleSubmit={handleSubmit}
+              handleSubmit={customHandleSubmit} // Use the modified handleSubmit
               isLoading={isLoading}
               stop={stop}
               attachments={attachments}
